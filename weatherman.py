@@ -5,8 +5,7 @@ import pandas as pd
 
 
 def extract_files(path):
-    """
-    Extracts files from a weatherfiles archive.
+    """Extracts files from a weatherfiles archive.
 
     Args:
         path (str): The path to the directory where the extracted files will be placed.
