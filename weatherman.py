@@ -2,6 +2,7 @@ import argparse
 import zipfile
 import os
 import pandas as pd
+import math
 
 MONTHS = {
     1: "January",
@@ -214,8 +215,33 @@ def generate_report_averages(weather_readings, year, month):
 
 
 def generate_chart(weather_readings, year, month):
-    pass
+    RED = "\033[91m"
+    BLUE = "\033[94m"
+    RESET = "\033[0m"
 
+    record_found = False
+    mon = MONTHS[month][:3]
+    year_month = str(year) + "_" + mon
+    for key in weather_readings.keys():
+        if key == year_month:
+            record_found = True
+            print(f"\n{MONTHS[month]} {year}")
+            for _, row in weather_readings[key].iterrows():
+                try:
+                    date = row['PKT'].split("-")
+                except:
+                    date = row['PKST'].split("-")
+                
+                if not math.isnan(row['Max TemperatureC']): 
+                    temp_high = int(row['Max TemperatureC'])
+                    temp_low = int(row['Min TemperatureC'])
+
+                    print(f"{date[-1]} {RED + ('+' * temp_high) + RESET} {temp_high}C")
+                    print(f"{date[-1]} {BLUE + ('+' * temp_low) + RESET} {temp_low}C")
+            break
+    if not record_found:
+        print("Sorry! No records found against your input")
+            
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -241,7 +267,7 @@ if __name__ == "__main__":
         generate_report_averages(weather_readings, year, month)
 
     if args.chart is not None:
-        inp = args.averages.split("/")
+        inp = args.chart.split("/")
         year = int(inp[0])
         month = int(inp[1])
         generate_chart(weather_readings, year, month)
