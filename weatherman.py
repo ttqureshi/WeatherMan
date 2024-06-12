@@ -214,7 +214,9 @@ def generate_report_averages(weather_readings, year, month):
     print("-------------------------------------")
 
 
-def generate_chart(weather_readings, year, month):
+def generate_chart(weather_readings, year, month, isInline):
+    """Generates bar chart of daily highest and lowest temperatures for a given month."""
+
     RED = "\033[91m"
     BLUE = "\033[94m"
     RESET = "\033[0m"
@@ -228,20 +230,30 @@ def generate_chart(weather_readings, year, month):
             print(f"\n{MONTHS[month]} {year}")
             for _, row in weather_readings[key].iterrows():
                 try:
-                    date = row['PKT'].split("-")
+                    date = row["PKT"].split("-")
                 except:
-                    date = row['PKST'].split("-")
-                
-                if not math.isnan(row['Max TemperatureC']): 
-                    temp_high = int(row['Max TemperatureC'])
-                    temp_low = int(row['Min TemperatureC'])
+                    date = row["PKST"].split("-")
 
-                    print(f"{date[-1]} {RED + ('+' * temp_high) + RESET} {temp_high}C")
-                    print(f"{date[-1]} {BLUE + ('+' * temp_low) + RESET} {temp_low}C")
+                if not math.isnan(row["Max TemperatureC"]):
+                    temp_high = int(row["Max TemperatureC"])
+                    temp_low = int(row["Min TemperatureC"])
+
+                    if isInline:
+                        print(
+                            f"{date[-1]} {BLUE + ('+' * temp_low) + RED + ('+' * temp_high) + BLUE} {temp_low}C{RESET} - {RED}{temp_high}C{RESET}"
+                        )
+                    else:
+                        print(
+                            f"{date[-1]} {RED + ('+' * temp_high) + RESET} {temp_high}C"
+                        )
+                        print(
+                            f"{date[-1]} {BLUE + ('+' * temp_low) + RESET} {temp_low}C"
+                        )
             break
+
     if not record_found:
         print("Sorry! No records found against your input")
-            
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -250,6 +262,7 @@ if __name__ == "__main__":
     parser.add_argument("-e", "--extremes")
     parser.add_argument("-a", "--averages")
     parser.add_argument("-c", "--chart")
+    parser.add_argument("--inline", action="store_true")
 
     args = parser.parse_args()
 
@@ -267,7 +280,8 @@ if __name__ == "__main__":
         generate_report_averages(weather_readings, year, month)
 
     if args.chart is not None:
+        print(f"Inline: {args.inline}")
         inp = args.chart.split("/")
         year = int(inp[0])
         month = int(inp[1])
-        generate_chart(weather_readings, year, month)
+        generate_chart(weather_readings, year, month, args.inline)
