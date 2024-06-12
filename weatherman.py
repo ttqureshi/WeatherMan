@@ -280,7 +280,6 @@ if __name__ == "__main__":
         generate_report_averages(weather_readings, year, month)
 
     if args.chart is not None:
-        print(f"Inline: {args.inline}")
         inp = args.chart.split("/")
         year = int(inp[0])
         month = int(inp[1])
