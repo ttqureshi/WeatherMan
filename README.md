@@ -20,3 +20,6 @@
 5. For a given month, to get one horizontal bar chart per day, add --inline flag to the command:
 
 ```weatherman.py dir/path/for/files/extraction -c 2011/3 --inline```
+
+## Note:
+Enter `./` in place of `dir/path/for/files/extraction` for current working directory
