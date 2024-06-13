@@ -1,5 +1,6 @@
 import zipfile
 from dataclasses import dataclass
+from dataclasses import dataclass
 import os
 import csv
 import argparse
@@ -21,6 +22,14 @@ class Parser:
         self.weather_readings = []
 
     def extract_zip(self, extract_to):
+        """Extracts files from a weatherfiles archive.
+
+        Args:
+            path (str): The path to the directory where the extracted files will be placed.
+
+        Raises:
+            RuntimeError: If there are any errors during extraction.
+        """
         try:
             with zipfile.ZipFile("weatherfiles.zip", "r") as zip_ref:
                 zip_ref.extractall(extract_to)
@@ -28,6 +37,12 @@ class Parser:
             raise RuntimeError(f"Error extracting files: {e}")
     
     def parse_weather_file(self, path):
+        """Parses a TXT file containing weather data.
+
+        This method reads a TXT file at the specified path and populates the
+        weather_readings list of the class with WeatherReading objects. Each
+        object represents a day's weather data.
+        """
         with open(path, 'r') as file:
             reader = csv.DictReader(file)
             for row in reader:
@@ -46,6 +61,8 @@ class Parser:
                     continue
     
     def parse_all_files(self):
+        """Parses all weather data files in the 'weatherfiles' directory."""
+        
         dir_path = os.path.join(self.extract_to, 'weatherfiles')
         for filename in os.listdir(dir_path):
             file_path = os.path.join(dir_path, filename)
