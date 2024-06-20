@@ -1,62 +1,45 @@
-from computations import Computations
+from code_files.constants import Colors, MonthsMapping
 
-MONTHS = {
-    1: "January",
-    2: "February",
-    3: "March",
-    4: "April",
-    5: "May",
-    6: "June",
-    7: "July",
-    8: "August",
-    9: "September",
-    10: "October",
-    11: "November",
-    12: "December",
-}
 
 class WeatherReporter:
     @staticmethod
-    def generate_report_extremes(readings):
+    def generate_report_extremes(weather_extremes):
         """Generates a report summarizing weather extremes for a year."""
 
-        h_temp, l_temp, h_humidity = Computations.compute_extreme_stats(readings)
-        date_htemp = h_temp.date.split("-")
-        date_ltemp = l_temp.date.split("-")
-        date_hhumid = h_humidity.date.split("-")
-
-        print(f"\n<==== Report for the year {date_htemp[0]}: ====>")
-        print(f"Highest: {h_temp.max_temp}C on {MONTHS[int(date_htemp[1])]} {date_htemp[2]}")
-        print(f"Lowest: {l_temp.min_temp}C on {MONTHS[int(date_ltemp[1])]} {date_ltemp[2]}")
-        print(f"Humidity: {h_humidity.max_humidity}% on {MONTHS[int(date_hhumid[1])]} {date_hhumid[2]}")
+        print(f"\n<==== Report for the year {weather_extremes.date_htemp[0]}: ====>")
+        print(
+            f"Highest: {weather_extremes.highest_temp}C on "
+            f"{MonthsMapping.MONTHS[int(weather_extremes.date_htemp[1])]} "
+            f"{weather_extremes.date_htemp[2]}"
+        )
+        print(
+            f"Lowest: {weather_extremes.lowest_temp}C on "
+            f"{MonthsMapping.MONTHS[int(weather_extremes.date_ltemp[1])]} "
+            f"{weather_extremes.date_ltemp[2]}"
+        )
+        print(
+            f"Humidity: {weather_extremes.highest_humidity}% on "
+            f"{MonthsMapping.MONTHS[int(weather_extremes.date_hhumid[1])]} "
+            f"{weather_extremes.date_hhumid[2]}"
+        )
         print("-------------------------------------")
 
-    def generate_report_averages(year, month, readings):
+    def generate_report_averages(year, month, avg_max_temp, avg_min_temp, avg_mean_humidity):
         """Generates a report summarizing average weather statistics for a given year and month."""
 
-        avg_max_temp, avg_min_temp, avg_mean_humidity = Computations.compute_average_stats(readings)
-
-        print(f"\n<==== Report for the month: {MONTHS[month]} {year} ====>")
+        print(f"\n<==== Report for the month: {MonthsMapping.MONTHS[month]} {year} ====>")
         print(f"Highest Average: {avg_max_temp:.1f}C")
         print(f"Lowest Average: {avg_min_temp:.1f}C")
         print(f"Average Mean Humidity: {avg_mean_humidity:.1f}%")
         print("-------------------------------------")
 
-    def generate_report_barchart(year, month, readings, isInline):
+    def generate_report_barchart(date, high_bar, low_bar, isInline):
         """Generates bar chart of daily highest and lowest temperatures for a given month of the year"""
 
-        RED = "\033[91m"
-        BLUE = "\033[94m"
-        RESET = "\033[0m"
-
-        print(f"\n<==== Temperature Bar Charts for {MONTHS[month]} {year} ====>")
-        for reading in readings:
-            high_bar = '+' * reading.max_temp
-            low_bar = '+' * reading.min_temp
-            day = reading.date.split('-')[-1]
-            if isInline:
-                print(f"{day + BLUE} {low_bar + RED} {high_bar} {BLUE}{reading.min_temp}C{RESET + ' - ' + RED}{reading.max_temp}C{RESET}")
-            else:
-                print(f"{day + RED} {high_bar} {reading.max_temp}C{RESET}")
-                print(f"{day + BLUE} {low_bar} {reading.min_temp}C{RESET}")
-
+        if isInline:
+            print(f"{date[-1]}{Colors.BLUE} {low_bar}{Colors.RED} {high_bar} "
+                f"{Colors.BLUE}{len(low_bar)}C{Colors.RESET} - "
+                f"{Colors.RED}{len(high_bar)}C{Colors.RESET}")
+        else:
+            print(f"{date[-1] + Colors.RED} {high_bar} {len(high_bar)}C{Colors.RESET}")
+            print(f"{date[-1] + Colors.BLUE} {low_bar} {len(low_bar)}C{Colors.RESET}")

@@ -1,4 +1,7 @@
-class Computations:
+from code_files.weather_readings import WeatherExtremes
+
+
+class ReportCalculator:
     @staticmethod
     def compute_extreme_stats(readings):
         """Computes the extreme weather statistics for a particular year
@@ -7,15 +10,34 @@ class Computations:
             readings (list): The list of WeatherReading objects of the given year
 
         Returns:
-            highest_temp: Highest temperature throughout the year
-            lowest_temp: Lowest temperature throughout the year
-            highest_humidity: Highest humidity throughout the year
+            weather_extremes (obj): Extreme weather stats of the year
         """
-        highest_temp = max(readings, key=lambda r: r.max_temp)
-        lowest_temp = min(readings, key=lambda r: r.min_temp)
-        highest_humidity = max(readings, key=lambda r: r.max_humidity)
-        return highest_temp, lowest_temp, highest_humidity
-    
+        highest_temp_reading = max(
+            readings,
+            key=lambda r: r.max_temp if r.max_temp is not None else float("-inf"),
+        )
+        lowest_temp_reading = min(
+            readings,
+            key=lambda r: r.min_temp if r.min_temp is not None else float("inf"),
+        )
+        highest_humidity_reading = max(
+            readings,
+            key=lambda r: (
+                r.max_humidity if r.max_humidity is not None else float("-inf")
+            ),
+        )
+
+        weather_extremes = WeatherExtremes(
+            highest_temp=highest_temp_reading.max_temp,
+            lowest_temp=lowest_temp_reading.min_temp,
+            highest_humidity=highest_humidity_reading.max_humidity,
+            date_htemp=highest_temp_reading.date.split("-"),
+            date_ltemp=lowest_temp_reading.date.split("-"),
+            date_hhumid=highest_humidity_reading.date.split("-"),
+        )
+
+        return weather_extremes
+
     @staticmethod
     def compute_average_stats(readings):
         """Computes the average weather statistics for a particular month of the year
@@ -38,4 +60,3 @@ class Computations:
         avg_mean_humidity = total_mean_humidity / count
 
         return avg_max_temp, avg_min_temp, avg_mean_humidity
-
