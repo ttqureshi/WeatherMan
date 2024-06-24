@@ -20,9 +20,8 @@ if __name__ == "__main__":
 
     if args.yearly_report:
         for yearly_report in args.yearly_report:
-            yearly_readings = [
-                r for r in parser.weather_readings if r.date.startswith(yearly_report.strftime('%Y'))
-            ]
+            yearly_readings = [r for r in parser.weather_readings if r.date.startswith(yearly_report.strftime('%Y'))]
+            
             if yearly_readings:
                 report_calculator = ReportCalculator(yearly_readings)
                 weather_extremes = report_calculator.compute_extreme_stats()
@@ -36,9 +35,8 @@ if __name__ == "__main__":
         for date in args.monthly_report:
             year = date.strftime('%Y')
             month = int(date.strftime('%m'))
-            monthly_readings = [
-                r for r in parser.weather_readings if r.date.startswith(f"{year}-{month}-")
-            ]
+            monthly_readings = [r for r in parser.weather_readings if r.date.startswith(f"{year}-{month}-")]
+
             if monthly_readings:
                 report_calculator = ReportCalculator(monthly_readings)
                 avg_max_temp, avg_min_temp, avg_mean_humidity = report_calculator.compute_average_stats()
@@ -52,9 +50,7 @@ if __name__ == "__main__":
         for temp_chart in args.temp_chart:
             year = temp_chart.strftime('%Y')
             month = int(temp_chart.strftime('%m'))
-            monthly_readings = [
-                r for r in parser.weather_readings if r.date.startswith(f"{year}-{month}-")
-            ]
+            monthly_readings = [r for r in parser.weather_readings if r.date.startswith(f"{year}-{month}-")]
 
             if monthly_readings:
                 for reading in monthly_readings:
