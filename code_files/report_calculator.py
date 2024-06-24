@@ -2,26 +2,22 @@ from code_files.weather_readings import WeatherExtremes
 
 
 class ReportCalculator:
-    @staticmethod
-    def compute_extreme_stats(readings):
-        """Computes the extreme weather statistics for a particular year
-
-        Args:
-            readings (list): The list of WeatherReading objects of the given year
-
-        Returns:
-            weather_extremes (obj): Extreme weather stats of the year
-        """
+    def __init__(self, readings):
+        self.readings = readings
+    
+    def compute_extreme_stats(self):
+        """Computes the extreme weather statistics for a particular year"""
+        
         highest_temp_reading = max(
-            readings,
+            self.readings,
             key=lambda r: r.max_temp if r.max_temp is not None else float("-inf"),
         )
         lowest_temp_reading = min(
-            readings,
+            self.readings,
             key=lambda r: r.min_temp if r.min_temp is not None else float("inf"),
         )
         highest_humidity_reading = max(
-            readings,
+            self.readings,
             key=lambda r: (
                 r.max_humidity if r.max_humidity is not None else float("-inf")
             ),
@@ -38,23 +34,14 @@ class ReportCalculator:
 
         return weather_extremes
 
-    @staticmethod
-    def compute_average_stats(readings):
-        """Computes the average weather statistics for a particular month of the year
+    def compute_average_stats(self):
+        """Computes the average weather statistics for a particular month of the year"""
 
-        Args:
-            readings (list): The list of WeatherReading objects of the given month of the year
+        total_max_temp = sum(r.max_temp for r in self.readings if r.max_temp)
+        total_min_temp = sum(r.min_temp for r in self.readings if r.min_temp)
+        total_mean_humidity = sum(r.mean_humidity for r in self.readings if r.mean_humidity)
 
-        Returns:
-            avg_max_temp: Average Highest temperature of the month
-            avg_min_temp: Average Lowest temperature of the month
-            avg_mean_humidity: Average mean humidity of the month
-        """
-        total_max_temp = sum(r.max_temp for r in readings if r.max_temp)
-        total_min_temp = sum(r.min_temp for r in readings if r.min_temp)
-        total_mean_humidity = sum(r.mean_humidity for r in readings if r.mean_humidity)
-
-        count = len(readings)
+        count = len(self.readings)
         avg_max_temp = total_max_temp / count
         avg_min_temp = total_min_temp / count
         avg_mean_humidity = total_mean_humidity / count

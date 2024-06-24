@@ -24,25 +24,27 @@ if __name__ == "__main__":
                 r for r in parser.weather_readings if r.date.startswith(yearly_report.strftime('%Y'))
             ]
             if yearly_readings:
-                weather_extremes = ReportCalculator.compute_extreme_stats(yearly_readings)
-                WeatherReporter.generate_report_extremes(weather_extremes)
+                report_calculator = ReportCalculator(yearly_readings)
+                weather_extremes = report_calculator.compute_extreme_stats()
+
+                weather_reporter = WeatherReporter(weather_extremes)
+                weather_reporter.generate_report_extremes()
             else:
                 print(f"No record found to show WEATHER EXTREMES agaisnt your input")
 
     if args.monthly_report:
-        for monthly_report in args.monthly_report:
-            year = monthly_report.strftime('%Y')
-            month = int(monthly_report.strftime('%m'))
+        for date in args.monthly_report:
+            year = date.strftime('%Y')
+            month = int(date.strftime('%m'))
             monthly_readings = [
                 r for r in parser.weather_readings if r.date.startswith(f"{year}-{month}-")
             ]
             if monthly_readings:
-                avg_max_temp, avg_min_temp, avg_mean_humidity = (
-                    ReportCalculator.compute_average_stats(monthly_readings)
-                )
-                WeatherReporter.generate_report_averages(
-                    year, month, avg_max_temp, avg_min_temp, avg_mean_humidity
-                )
+                report_calculator = ReportCalculator(monthly_readings)
+                avg_max_temp, avg_min_temp, avg_mean_humidity = report_calculator.compute_average_stats()
+
+                weather_reporter = WeatherReporter(date=date, avg_max_temp=avg_max_temp, avg_min_temp=avg_min_temp, avg_mean_humidity=avg_mean_humidity)
+                weather_reporter.generate_report_averages()
             else:
                 print(f"No record found to show AVERAGE STATS against your input")
 
@@ -59,10 +61,10 @@ if __name__ == "__main__":
                     if reading.max_temp and reading.min_temp:
                         high_bar = "+" * reading.max_temp
                         low_bar = "+" * reading.min_temp
-                        date = reading.date.split("-")
-                        WeatherReporter.generate_report_barchart(
-                            date, high_bar, low_bar, args.inline
-                        )
+                        date = datetime.strptime(reading.date, "%Y-%m-%d")
+
+                        weather_reporter = WeatherReporter(date=date, high_bar=high_bar, low_bar=low_bar, isInline=args.inline)
+                        weather_reporter.generate_report_barchart()
             else:
                 print(f"No record found to plot CHARTS against your input")
             print("-------------------------------------")
