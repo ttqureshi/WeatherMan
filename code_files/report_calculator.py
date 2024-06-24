@@ -50,9 +50,9 @@ class ReportCalculator:
             avg_min_temp: Average Lowest temperature of the month
             avg_mean_humidity: Average mean humidity of the month
         """
-        total_max_temp = sum(r.max_temp for r in readings)
-        total_min_temp = sum(r.min_temp for r in readings)
-        total_mean_humidity = sum(r.mean_humidity for r in readings)
+        total_max_temp = sum(r.max_temp for r in readings if r.max_temp)
+        total_min_temp = sum(r.min_temp for r in readings if r.min_temp)
+        total_mean_humidity = sum(r.mean_humidity for r in readings if r.mean_humidity)
 
         count = len(readings)
         avg_max_temp = total_max_temp / count
