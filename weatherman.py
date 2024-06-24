@@ -6,11 +6,11 @@ from code_files.report_calculator import ReportCalculator
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("extract_to", type=str)
-    parser.add_argument("-e", "--extremes", type=lambda e: datetime.strptime(e, '%Y'))
-    parser.add_argument("-a", "--averages", type=lambda a: datetime.strptime(a, '%Y/%m'))
-    parser.add_argument("-c", "--chart", type=lambda c: datetime.strptime(c, '%Y/%m'))
-    parser.add_argument("--inline", action="store_true")
+    parser.add_argument("extract_to", type=str, help='Directory to extract the results to.')
+    parser.add_argument("-e", "--extremes", type=lambda e: datetime.strptime(e, '%Y'), help='Extreme weather stats for a year (format: YYYY).')
+    parser.add_argument("-a", "--averages", type=lambda a: datetime.strptime(a, '%Y/%m'), help='Year & Month for average weather stats (format: YYYY/MM)')
+    parser.add_argument("-c", "--chart", type=lambda c: datetime.strptime(c, '%Y/%m'), help='Year & Month for daily temperature chart (format: YYYY/MM)')
+    parser.add_argument("--inline", action="store_true", help="One bar chart for highest and lowest temp on each day")
 
     args = parser.parse_args()
 
