@@ -2,7 +2,7 @@ from code_files.weather_readings import WeatherExtremes
 
 
 class ReportCalculator:
-    def __init__(self, readings):
+    def __init__(self, readings=None):
         self.readings = readings
     
     def compute_extreme_stats(self):
