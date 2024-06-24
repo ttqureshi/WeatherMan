@@ -1,6 +1,7 @@
-import os
 import csv
+import os
 import zipfile
+
 from code_files.weather_readings import WeatherReading
 
 
