@@ -7,9 +7,9 @@ from code_files.report_calculator import ReportCalculator
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("extract_to", type=str, help='Directory to extract the results to.')
-    parser.add_argument("-e", "--extremes", type=lambda e: datetime.strptime(e, '%Y'), help='Extreme weather stats for a year (format: YYYY).')
-    parser.add_argument("-a", "--averages", type=lambda a: datetime.strptime(a, '%Y/%m'), help='Year & Month for average weather stats (format: YYYY/MM)')
-    parser.add_argument("-c", "--chart", type=lambda c: datetime.strptime(c, '%Y/%m'), help='Year & Month for daily temperature chart (format: YYYY/MM)')
+    parser.add_argument("-e", "--yearly_report", type=lambda e: datetime.strptime(e, '%Y'), help='Extreme weather stats for a year (format: YYYY).')
+    parser.add_argument("-a", "--monthly_report", type=lambda a: datetime.strptime(a, '%Y/%m'), help='Year & Month for average weather stats (format: YYYY/MM)')
+    parser.add_argument("-c", "--temp_chart", type=lambda c: datetime.strptime(c, '%Y/%m'), help='Year & Month for daily temperature chart (format: YYYY/MM)')
     parser.add_argument("--inline", action="store_true", help="One bar chart for highest and lowest temp on each day")
 
     args = parser.parse_args()
@@ -18,9 +18,9 @@ if __name__ == "__main__":
     parser.extract_zip()
     parser.parse_all_files()
 
-    if args.extremes:
+    if args.yearly_report:
         yearly_readings = [
-            r for r in parser.weather_readings if r.date.startswith(args.extremes.strftime('%Y'))
+            r for r in parser.weather_readings if r.date.startswith(args.yearly_report.strftime('%Y'))
         ]
         if yearly_readings:
             weather_extremes = ReportCalculator.compute_extreme_stats(yearly_readings)
@@ -28,9 +28,9 @@ if __name__ == "__main__":
         else:
             print(f"No record found to show WEATHER EXTREMES agaisnt your input")
 
-    if args.averages:
-        year = args.averages.strftime('%Y')
-        month = int(args.averages.strftime('%m'))
+    if args.monthly_report:
+        year = args.monthly_report.strftime('%Y')
+        month = int(args.monthly_report.strftime('%m'))
         monthly_readings = [
             r for r in parser.weather_readings if r.date.startswith(f"{year}-{month}")
         ]
@@ -44,10 +44,9 @@ if __name__ == "__main__":
         else:
             print(f"No record found to show AVERAGE STATS against your input")
 
-    if args.chart:
-        # year, month = map(int, args.chart.split("/"))
-        year = args.chart.strftime('%Y')
-        month = int(args.chart.strftime('%m'))
+    if args.temp_chart:
+        year = args.temp_chart.strftime('%Y')
+        month = int(args.temp_chart.strftime('%m'))
         monthly_readings = [
             r for r in parser.weather_readings if r.date.startswith(f"{year}-{month}")
         ]
