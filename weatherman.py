@@ -1,4 +1,5 @@
 import argparse
+from datetime import datetime
 from code_files.weather_parser import WeatherParser
 from code_files.weather_reporter import WeatherReporter
 from code_files.report_calculator import ReportCalculator
@@ -6,9 +7,9 @@ from code_files.report_calculator import ReportCalculator
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("extract_to", type=str)
-    parser.add_argument("-e", "--extremes", type=int)
-    parser.add_argument("-a", "--averages", type=str)
-    parser.add_argument("-c", "--chart", type=str)
+    parser.add_argument("-e", "--extremes", type=lambda e: datetime.strptime(e, '%Y'))
+    parser.add_argument("-a", "--averages", type=lambda a: datetime.strptime(a, '%Y/%m'))
+    parser.add_argument("-c", "--chart", type=lambda c: datetime.strptime(c, '%Y/%m'))
     parser.add_argument("--inline", action="store_true")
 
     args = parser.parse_args()
@@ -19,7 +20,7 @@ if __name__ == "__main__":
 
     if args.extremes:
         yearly_readings = [
-            r for r in parser.weather_readings if r.date.startswith(str(args.extremes))
+            r for r in parser.weather_readings if r.date.startswith(args.extremes.strftime('%Y'))
         ]
         if yearly_readings:
             weather_extremes = ReportCalculator.compute_extreme_stats(yearly_readings)
@@ -28,7 +29,8 @@ if __name__ == "__main__":
             print(f"No record found to show WEATHER EXTREMES agaisnt your input")
 
     if args.averages:
-        year, month = map(int, args.averages.split("/"))
+        year = args.averages.strftime('%Y')
+        month = int(args.averages.strftime('%m'))
         monthly_readings = [
             r for r in parser.weather_readings if r.date.startswith(f"{year}-{month}")
         ]
@@ -43,7 +45,9 @@ if __name__ == "__main__":
             print(f"No record found to show AVERAGE STATS against your input")
 
     if args.chart:
-        year, month = map(int, args.chart.split("/"))
+        # year, month = map(int, args.chart.split("/"))
+        year = args.chart.strftime('%Y')
+        month = int(args.chart.strftime('%m'))
         monthly_readings = [
             r for r in parser.weather_readings if r.date.startswith(f"{year}-{month}")
         ]
