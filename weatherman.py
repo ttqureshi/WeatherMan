@@ -7,9 +7,9 @@ from code_files.report_calculator import ReportCalculator
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("extract_to", type=str, help='Directory to extract the results to.')
-    parser.add_argument("-e", "--yearly_report", type=lambda e: datetime.strptime(e, '%Y'), nargs='+', help='Extreme weather stats for a year (format: YYYY).')
-    parser.add_argument("-a", "--monthly_report", type=lambda a: datetime.strptime(a, '%Y/%m'), nargs='+', help='Year & Month for average weather stats (format: YYYY/MM)')
-    parser.add_argument("-c", "--temp_chart", type=lambda c: datetime.strptime(c, '%Y/%m'), nargs='+', help='Year & Month for daily temperature chart (format: YYYY/MM)')
+    parser.add_argument("-e", "--yearly_report", type=lambda e: datetime.strptime(e, '%Y'), nargs='*', help='Extreme weather stats for a year (format: YYYY).')
+    parser.add_argument("-a", "--monthly_report", type=lambda a: datetime.strptime(a, '%Y/%m'), nargs='*', help='Year & Month for average weather stats (format: YYYY/MM)')
+    parser.add_argument("-c", "--temp_chart", type=lambda c: datetime.strptime(c, '%Y/%m'), nargs='*', help='Year & Month for daily temperature chart (format: YYYY/MM)')
     parser.add_argument("--inline", action="store_true", help="One bar chart for highest and lowest temp on each day")
 
     args = parser.parse_args()
@@ -21,7 +21,7 @@ if __name__ == "__main__":
     if args.yearly_report:
         for yearly_report in args.yearly_report:
             yearly_readings = [r for r in parser.weather_readings if r.date.startswith(yearly_report.strftime('%Y'))]
-            
+
             if yearly_readings:
                 report_calculator = ReportCalculator(yearly_readings)
                 weather_extremes = report_calculator.compute_extreme_stats()
