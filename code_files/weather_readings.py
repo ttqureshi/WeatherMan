@@ -18,8 +18,10 @@ class WeatherReading:
 
     @staticmethod
     def validate_reading(value):
-        if value is not None:
+        if value: # if value is empty ''
             return int(value)
+        elif value == 0: # if value is 0
+            return value
 
 
 @dataclass
