@@ -8,10 +8,17 @@ class WeatherReading:
         self.min_temp = self.validate_reading(min_temp)
         self.max_humidity = self.validate_reading(max_humidity)
         self.mean_humidity = self.validate_reading(mean_humidity)
+    
+    def __eq__(self, other):
+        return self.date == other.date and \
+                self.max_temp == other.max_temp and \
+                self.min_temp == other.min_temp and \
+                self.max_humidity == other.max_humidity and \
+                self.mean_humidity == other.mean_humidity
 
     @staticmethod
     def validate_reading(value):
-        if value:
+        if value is not None:
             return int(value)
 
 
