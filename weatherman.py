@@ -1,10 +1,9 @@
 import argparse
 from datetime import datetime
-from code_files.weather_parser import WeatherParser
-from code_files.weather_reporter import WeatherReporter
-from code_files.report_calculator import ReportCalculator
 
-if __name__ == "__main__":
+from code_files.weather_app import WeatherParser, WeatherReporter, ReportCalculator
+
+def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("extract_to", type=str, help='Directory to extract the results to.')
     parser.add_argument("-e", "--yearly_report", type=lambda e: datetime.strptime(e, '%Y'), nargs='*', help='Extreme weather stats for a year (format: YYYY).')
@@ -73,3 +72,7 @@ if __name__ == "__main__":
             else:
                 print(f"No record found to plot CHARTS against your input")
             print("-------------------------------------")
+
+
+if __name__ == "__main__":
+    main()
