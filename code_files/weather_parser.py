@@ -6,7 +6,7 @@ from code_files.weather_readings import WeatherReading
 
 
 class WeatherParser:
-    def __init__(self, extract_to):
+    def __init__(self, extract_to=None):
         self.extract_to = extract_to
         self.weather_readings = []
 
