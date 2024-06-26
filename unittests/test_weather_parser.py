@@ -18,6 +18,7 @@ SAMPLE_DATA = """PKT,Max TemperatureC,Mean TemperatureC,Min TemperatureC,Dew Poi
 class TestWeatherParser(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        """Creates a temporary file and populates the SAMPLE_DATA in it for subsequent tests to use."""
         cls.temp_file = NamedTemporaryFile(
             delete=False,
             mode="w",
@@ -36,9 +37,13 @@ class TestWeatherParser(unittest.TestCase):
         os.remove(cls.temp_file_name)
     
     def test_parse_weather_file_total_readings(self):
+        """Tests that the parse_weather_file method reads all readings from the input data."""
+
         self.assertEqual(len(self.weather_parser.weather_readings), 5)
     
     def test_parse_weather_file_values(self):
+        """Tests that the parse_weather_file method correctly parses the weather data values."""
+
         self.assertEqual(self.weather_parser.weather_readings[0], WeatherReading('2012-2-1',9,3,36,34))
         self.assertEqual(self.weather_parser.weather_readings[1], WeatherReading('2012-2-2',12,5,47,34))
         self.assertEqual(self.weather_parser.weather_readings[2], WeatherReading('2012-2-3',2,-2,100,71))
