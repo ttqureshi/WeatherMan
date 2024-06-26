@@ -5,3 +5,6 @@ weatherfiles/
 weatherfiles.zip
 FileTree.ini
 .vscode/
+unittests/test_weather_reporter.py
+unittests/test_weatherman.py
+
