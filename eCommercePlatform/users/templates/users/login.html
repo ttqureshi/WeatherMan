@@ -1,5 +1,5 @@
 {% extends "layout.html" %}
-{% load bootstrap5 %}
+{% load django_bootstrap5 %}
 
 {% block title %}
     User Login
@@ -10,9 +10,7 @@
     <form action="{% url "users:login" %}" method="post">
         {% bootstrap_form form %}
         {% csrf_token %} <!--Cross Site Request Forgery => ensures that the form is being sumitted from our site and not from something pretending to be our site-->
-        {% buttons %}
             <button type="submit" class="btn btn-primary">Submit</button>
-        {% endbuttons %}
         <p>
             New User? <a href="{% url "users:register" %}">Register</a>
         </p>
