@@ -36,7 +36,7 @@
                     <form action="{% url "users:update-cart-item" item.product.id %}" method="post" class="d-inline">
                         {% csrf_token %}
                         <input type="number" name="quantity" value="{{ item.quantity }}" min="1" class="form-control d-inline-block" style="width: 70px;">
-                        <button type="submit" class="btn btn-sm btn-primary">Update</button>
+                        <button type="submit" class="btn btn-sm btn-success">Update</button>
                     </form>
                 </td>
                 <td>Rs. {{ item.product.price }}</td>

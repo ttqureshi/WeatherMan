@@ -46,7 +46,7 @@ Products Listing
                             >
                         </a>
                         <div class="card-body">
-                            <a href="{% url 'products:detail' product.id %}">
+                            <a style="color: green;" href="{% url 'products:detail' product.id %}">
                                 <h5 class="card-title">{{ product.name }}</h5>
                             </a>
                             <p class="card-text">Rs. {{ product.price }}</p>

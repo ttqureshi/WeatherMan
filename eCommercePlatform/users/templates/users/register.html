@@ -10,7 +10,7 @@
     <form action="{% url "users:register" %}" method="post">
         {% csrf_token %} 
         {% bootstrap_form form %}
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="submit" class="btn btn-success">Submit</button>
         <p>
             Already a user? <a href="{% url "users:login" %}">Login</a>
         </p>
