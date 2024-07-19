@@ -1,4 +1,6 @@
 from django.db import models
+from django.contrib.auth.models import User
+from django.db.models import Avg
 
 
 class Category(models.Model):
@@ -19,3 +21,19 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+    
+    @property
+    def avg_ratings(self):
+        average_rating = ReviewRating.objects.filter(product=self).aggregate(Avg('rating'))['rating__avg']
+        return average_rating if average_rating is not None else 0
+
+class ReviewRating(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    review = models.TextField(max_length=500, blank=True)
+    rating = models.FloatField()
+    created_at= models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.review
+    

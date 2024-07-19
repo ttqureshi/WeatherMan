@@ -1,7 +1,10 @@
-from django.shortcuts import render
-from .models import Product
+from django.shortcuts import render, redirect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.contrib import messages
+from django.contrib.auth.models import User
 
+from .models import Product, ReviewRating
+from .forms import ReviewForm
 
 def products_listing_view(request):
     category = request.GET.get("category")
@@ -28,7 +31,12 @@ def products_listing_view(request):
 
 def product_detail_view(request, product_id):
     product = Product.objects.get(pk=product_id)
-    return render(request, "products/product_detail.html", {"product": product})
+    reviews = ReviewRating.objects.filter(product=product)
+    context = {
+        'product': product,
+        'reviews': reviews,
+    }
+    return render(request, "products/product_detail.html", context)
 
 
 def search(request):
@@ -38,3 +46,25 @@ def search(request):
         "search_query": search_query,
         "search_results": search_results,
     })
+
+
+def submit_review(request, product_id):
+    url = request.META.get("HTTP_REFERER")
+    if request.method == "POST":
+        try:
+            review = ReviewRating.objects.get(user__id=request.user.id, product__id=product_id)
+            form = ReviewForm(request.POST, instance=review)
+            form.save()
+            messages.success(request, "Thanks You! Your review has been updated")
+            return redirect(url)
+        except ReviewRating.DoesNotExist:
+            form = ReviewForm(request.POST)
+            if form.is_valid():
+                data = ReviewRating()
+                data.rating = form.cleaned_data['rating']
+                data.review = form.cleaned_data['review']
+                data.product = Product.objects.get(id=product_id)
+                data.user = User.objects.get(id=request.user.id)
+                data.save()
+                messages.success(request, "Thank You! Your review has been submitted.")
+                return redirect(url)
