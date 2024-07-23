@@ -11,22 +11,22 @@ Search - {{ search_query }}
         <div class="col-md-3">
             <h5>Categories</h5>
             <ul class="list-group">
-                <li style="background-color: #e6e6e6" class="list-group-item {% if not selected_category %}active{% endif %}">
+                <li class="list-group-item {% if not selected_category %}active-category{% endif %}">
                     <a style="color: green;" href="{% url 'products:products-listing' %}">All</a>
                 </li>
-                <li style="background-color: #e6e6e6" class="list-group-item {% if selected_category == 'Home and Lifestyle' %}active{% endif %}">
+                <li class="list-group-item {% if selected_category == 'Home and Lifestyle' %}active-category{% endif %}">
                     <a style="color: green;" href="{% url 'products:products-listing' %}?category=Home and Lifestyle">Home & Lifestyle</a>
                 </li>
-                <li style="background-color: #e6e6e6" class="list-group-item {% if selected_category == 'Electronic Devices' %}active{% endif %}">
+                <li class="list-group-item {% if selected_category == 'Electronic Devices' %}active-category{% endif %}">
                     <a style="color: green;" href="{% url 'products:products-listing' %}?category=Electronic Devices">Electronic Devices</a>
                 </li>
-                <li style="background-color: #e6e6e6" class="list-group-item {% if selected_category == 'Home Appliances' %}active{% endif %}">
+                <li class="list-group-item {% if selected_category == 'Home Appliances' %}active-category{% endif %}">
                     <a style="color: green;" href="{% url 'products:products-listing' %}?category=Home Appliances">Home Appliances</a>
                 </li>
-                <li style="background-color: #e6e6e6" class="list-group-item {% if selected_category == 'Sports and Outdoor' %}active{% endif %}">
+                <li class="list-group-item {% if selected_category == 'Sports and Outdoor' %}active-category{% endif %}">
                     <a style="color: green;" href="{% url 'products:products-listing' %}?category=Sports and Outdoor">Sports & Outdoor</a>
                 </li>
-                <li style="background-color: #e6e6e6" class="list-group-item {% if selected_category == 'Men Fashion' %}active{% endif %}">
+                <li class="list-group-item {% if selected_category == 'Men Fashion' %}active-category{% endif %}">
                     <a style="color: green;" href="{% url 'products:products-listing' %}?category=Men Fashion">Men’s Fashion</a>
                 </li>
             </ul>
@@ -56,7 +56,21 @@ Search - {{ search_query }}
                 </div>
                 {% endfor %}
             </div>
+            <div class="row">
+                <div class="col d-flex justify-content-center">
+                    {% bootstrap_pagination page_obj %}
+                </div>
+            </div>
         </div>
     </div>
 </div>
+<style>
+    .list-group-item.active-category {
+        background-color: darkgreen !important;
+        color: white;
+    }
+    .list-group-item.active-category a {
+        color: white !important;
+    }
+</style>
 {% endblock %}

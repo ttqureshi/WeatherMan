@@ -11,22 +11,22 @@ Products Listing
         <div class="col-md-3">
             <h5>Categories</h5>
             <ul class="list-group">
-                <li style="background-color: #e6e6e6" class="list-group-item {% if not selected_category %}active{% endif %}">
+                <li class="list-group-item {% if not selected_category %}active-category{% endif %}">
                     <a style="color: green;" href="{% url 'products:products-listing' %}">All</a>
                 </li>
-                <li style="background-color: #e6e6e6" class="list-group-item {% if selected_category == 'Home and Lifestyle' %}active{% endif %}">
+                <li class="list-group-item {% if selected_category == 'Home and Lifestyle' %}active-category{% endif %}">
                     <a style="color: green;" href="{% url 'products:products-listing' %}?category=Home and Lifestyle">Home & Lifestyle</a>
                 </li>
-                <li style="background-color: #e6e6e6" class="list-group-item {% if selected_category == 'Electronic Devices' %}active{% endif %}">
+                <li class="list-group-item {% if selected_category == 'Electronic Devices' %}active-category{% endif %}">
                     <a style="color: green;" href="{% url 'products:products-listing' %}?category=Electronic Devices">Electronic Devices</a>
                 </li>
-                <li style="background-color: #e6e6e6" class="list-group-item {% if selected_category == 'Home Appliances' %}active{% endif %}">
+                <li class="list-group-item {% if selected_category == 'Home Appliances' %}active-category{% endif %}">
                     <a style="color: green;" href="{% url 'products:products-listing' %}?category=Home Appliances">Home Appliances</a>
                 </li>
-                <li style="background-color: #e6e6e6" class="list-group-item {% if selected_category == 'Sports and Outdoor' %}active{% endif %}">
+                <li class="list-group-item {% if selected_category == 'Sports and Outdoor' %}active-category{% endif %}">
                     <a style="color: green;" href="{% url 'products:products-listing' %}?category=Sports and Outdoor">Sports & Outdoor</a>
                 </li>
-                <li style="background-color: #e6e6e6" class="list-group-item {% if selected_category == 'Men Fashion' %}active{% endif %}">
+                <li class="list-group-item {% if selected_category == 'Men Fashion' %}active-category{% endif %}">
                     <a style="color: green;" href="{% url 'products:products-listing' %}?category=Men Fashion">Men’s Fashion</a>
                 </li>
             </ul>
@@ -34,7 +34,7 @@ Products Listing
 
         <div class="col-md-9">
             <div class="row">
-                {% for product in page_obj %}
+                {% for product in product_list %}
                 <div class="col-md-4">
                     <div class="card mb-4">
                         <a href="{% url 'products:detail' product.id %}">
@@ -64,4 +64,14 @@ Products Listing
         </div>
     </div>
 </div>
+
+<style>
+    .list-group-item.active-category {
+        background-color: darkgreen !important;
+        color: white;
+    }
+    .list-group-item.active-category a {
+        color: white !important;
+    }
+</style>
 {% endblock %}
