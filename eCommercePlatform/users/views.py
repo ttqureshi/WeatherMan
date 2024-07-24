@@ -1,48 +1,40 @@
+from django.db.models.base import Model as Model
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
-from django.contrib.auth import login, logout
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth import login
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views import View
+from django.views.generic.list import ListView
+from django.views.generic.detail import DetailView
+from django.views.generic.edit import FormView
 
 from .forms import UserRegisterForm, OrderForm, UserUpdateForm
 from products.models import Product
 from .models import Cart, CartItem, Order, OrderItem
 
 
-def register_view(request):
-    if request.method == "POST":
+class RegisterView(View):
+    def post(self, request):
         form = UserRegisterForm(request.POST)
         if form.is_valid():
             login(request, form.save())
             cart = Cart(user=request.user)
             cart.save()
             return redirect("products:products-listing")
-    else:
+        return render(request, "users/register.html", {"form": form})
+    
+    def get(self, request):
         form = UserRegisterForm()
-    return render(request, "users/register.html", {"form": form})
+        context = {"form": form}
+        return render(request, "users/register.html", context)
 
 
-def login_view(request):
-    if request.method == "POST":
-        form = AuthenticationForm(data=request.POST)
-        if form.is_valid():
-            login(request, form.get_user())
-            return redirect("products:products-listing")
-    else:
-        form = AuthenticationForm()
-    return render(request, "users/login.html", {"form": form})
+class ProfileView(LoginRequiredMixin, View):
+    login_url = "/login"
 
-
-def logout_view(request):
-    if request.method == "POST":
-        logout(request)
-        redirect("products:products-listing")
-
-
-@login_required(login_url="/login")
-def profile(request):
-    if request.method == "POST":
+    def post(self, request):
         user_form = UserUpdateForm(request.POST, instance=request.user)
         password_form = PasswordChangeForm(user=request.user, data=request.POST)
 
@@ -60,49 +52,60 @@ def profile(request):
                 error_message += f' Reason: {", ".join([", ".join(errors) for errors in password_form.errors.values()])}'
             messages.error(request, error_message)
 
-    else:
+            context = {"user_form": user_form, "password_form": password_form}
+            return render(request, "users/user_profile.html", context)
+        
+    def get(self, request):
         user_form = UserUpdateForm(instance=request.user)
         password_form = PasswordChangeForm(request.user)
 
-    context = {"user_form": user_form, "password_form": password_form}
-
-    return render(request, "users/user_profile.html", context)
-
-
-@login_required(login_url="/login")
-def cart_view(request):
-    cart = Cart.objects.get(user=request.user)
-    items = cart.cartitem_set.all()
-    total_price = sum(item.quantity * item.product.price for item in items)
-
-    return render(
-        request, "users/cart.html", {"cart": cart, "total_price": total_price}
-    )
+        context = {"user_form": user_form, "password_form": password_form}
+        return render(request, "users/user_profile.html", context)
 
 
-@login_required(login_url="/login")
-def add_to_cart(request, product_id):
-    product = get_object_or_404(Product, id=product_id)
-    in_stock = product.stock > 0
+class CartView(LoginRequiredMixin, DetailView):
+    login_url = "/login"
 
-    if in_stock:
-        cart = Cart.objects.get(user=request.user)
-        cart_item, is_created = CartItem.objects.get_or_create(
-            cart=cart, product=product
-        )
+    model = Cart
+    template_name = "users/cart.html"
+    context_object_name = "cart"
 
-        if not is_created:
-            cart_item.quantity += 1
-            cart_item.save()
-        else:
-            cart_item.quantity = 1
-
-    return redirect("products:products-listing")
+    def get_object(self, queryset=None):
+        return get_object_or_404(Cart, user=self.request.user)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        items = self.object.cartitem_set.select_related("product").all()
+        context["total_price"] = sum(item.quantity * item.product.price for item in items)
+        return context
 
 
-@login_required(login_url="/login")
-def update_cart_item(request, product_id):
-    if request.method == "POST":
+class AddToCartView(LoginRequiredMixin, View):
+    login_url = "/login"
+
+    def post(self, request, product_id):
+        product = get_object_or_404(Product, id=product_id)
+        in_stock = product.stock > 0
+
+        if in_stock:
+            cart = Cart.objects.get(user=request.user)
+            cart_item, is_created = CartItem.objects.get_or_create(
+                cart=cart, product=product
+            )
+
+            if not is_created:
+                cart_item.quantity += 1
+                cart_item.save()
+            else:
+                cart_item.quantity = 1
+
+        return redirect("products:products-listing")
+
+
+class UpdateCartItemView(LoginRequiredMixin, View):
+    login_url = "/login"
+
+    def post(self, request, product_id):
         cart = Cart.objects.get(user=request.user)
         cart_item = cart.cartitem_set.get(product_id=product_id)
         product = Product.objects.get(id=product_id)
@@ -116,59 +119,82 @@ def update_cart_item(request, product_id):
                 request, f"Only {stock_left} {product.name} left in stock."
             )
         return redirect("users:cart")
-    return redirect("users:cart")
+    
+    def get(self, request):
+        return redirect("users:cart")
 
+    
+class RemoveItemView(LoginRequiredMixin, View):
+    login_url = "/login"
 
-@login_required(login_url="/login")
-def remove_item(request, product_id):
-    if request.method == "POST":
+    def post(self, request, product_id):
         cart = Cart.objects.get(user=request.user)
         cart_item = cart.cartitem_set.get(product_id=product_id)
         cart_item.delete()
         return redirect("users:cart")
 
 
-@login_required(login_url="/login")
-def checkout(request):
-    cart = get_object_or_404(Cart, user=request.user)
-    items = cart.cartitem_set.all()
-    total_price = sum(item.quantity * item.product.price for item in items)
+class CheckoutView(LoginRequiredMixin, FormView):
+    login_url = "/login"
 
-    if request.method == "POST":
-        form = OrderForm(request.POST)
-        if form.is_valid():
-            order = form.save(commit=False)
-            order.user = request.user
-            order.total_price = total_price
-            order.save()
+    template_name = "users/checkout.html"
+    form_class = OrderForm
 
-            for cart_item in cart.cartitem_set.all():
-                OrderItem.objects.create(
-                    order=order, product=cart_item.product, quantity=cart_item.quantity
-                )
-                product = Product.objects.get(id=cart_item.product.id)
-                product.stock -= cart_item.quantity
-                product.save()
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        cart = get_object_or_404(Cart, user=self.request.user)
+        items = cart.cartitem_set.select_related("product").all()
+        total_price = sum(item.quantity * item.product.price for item in items)
+        context.update({
+            "cart": cart,
+            "total_price": total_price,
+        })
+        return context
+    
+    def form_valid(self, form):
+        cart = get_object_or_404(Cart, user=self.request.user)
+        items = cart.cartitem_set.select_related("product").all()
+        total_price = sum(item.quantity * item.product.price for item in items)
 
-            cart.cartitem_set.all().delete()
+        order = form.save(commit=False)
+        order.user = self.request.user
+        order.total_price = total_price
+        order.save()
 
-            return render(request, "users/order_confirmation.html", {"order": order})
-    else:
-        form = OrderForm()
-    return render(
-        request,
-        "users/checkout.html",
-        {"form": form, "cart": cart, "total_price": total_price},
-    )
+        for cart_item in items:
+            OrderItem.objects.create(
+                order=order,
+                product=cart_item.product,
+                quantity=cart_item.quantity
+            )
+            product = Product.objects.get(id=cart_item.product.id)
+            product.stock -= cart_item.quantity
+            product.save()
+        
+        cart.cartitem_set.all().delete()
+
+        return render(self.request, "users/order_confirmation.html", {"order": order})
+    
+    
+class OrderListView(LoginRequiredMixin, ListView):
+    login_url = '/login'
+
+    model = Order
+    template_name = 'users/order_history.html'
+    context_object_name = 'orders'
+    
+    def get_queryset(self):
+        return Order.objects.filter(user=self.request.user)
 
 
-@login_required(login_url="/login")
-def orders(request):
-    orders = Order.objects.filter(user=request.user)
-    return render(request, "users/order_history.html", {"orders": orders})
+class OrderDetailView(LoginRequiredMixin, DetailView):
+    login_url = "/login"
 
+    model = Order
+    template_name = 'users/order_detail.html'
+    context_object_name = 'order'
 
-@login_required(login_url="/login")
-def order_detail(request, order_id):
-    order = Order.objects.get(id=order_id)
-    return render(request, "users/order_detail.html", {"order": order})
+    def get_object(self):
+        # Override get_object to fetch the specific order instance
+        order_id = self.kwargs.get('order_id')
+        return get_object_or_404(Order, id=order_id)
