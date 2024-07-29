@@ -8,9 +8,14 @@
 {% block content %}
 <div class="container mt-5">
     <h2>Order Confirmation</h2>
-    <div class="alert alert-success" role="alert">
-        Thank you for your order!
-    </div>
+    {% if messages %}
+        <div class="alert alert-success" role="alert">
+            {% for message in messages %}
+                {{ message }}
+            {% endfor %}
+        </div>
+    {% endif %}
+    
     <h4>Order Details</h4>
     <ul class="list-group">
         <li class="list-group-item"><strong>Order ID:</strong> {{ order.id }}</li>

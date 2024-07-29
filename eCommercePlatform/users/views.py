@@ -9,6 +9,7 @@ from django.views import View
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import FormView
+from django.db import transaction
 
 from .forms import UserRegisterForm, OrderForm, UserUpdateForm
 from products.models import Product
@@ -24,7 +25,7 @@ class RegisterView(View):
             cart.save()
             return redirect("products:products-listing")
         return render(request, "users/register.html", {"form": form})
-    
+
     def get(self, request):
         form = UserRegisterForm()
         context = {"form": form}
@@ -54,7 +55,7 @@ class ProfileView(LoginRequiredMixin, View):
 
             context = {"user_form": user_form, "password_form": password_form}
             return render(request, "users/user_profile.html", context)
-        
+
     def get(self, request):
         user_form = UserUpdateForm(instance=request.user)
         password_form = PasswordChangeForm(request.user)
@@ -72,11 +73,13 @@ class CartView(LoginRequiredMixin, DetailView):
 
     def get_object(self, queryset=None):
         return get_object_or_404(Cart, user=self.request.user)
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         items = self.object.cartitem_set.select_related("product").all()
-        context["total_price"] = sum(item.quantity * item.product.price for item in items)
+        context["total_price"] = sum(
+            item.quantity * item.product.price for item in items
+        )
         return context
 
 
@@ -119,11 +122,11 @@ class UpdateCartItemView(LoginRequiredMixin, View):
                 request, f"Only {stock_left} {product.name} left in stock."
             )
         return redirect("users:cart")
-    
+
     def get(self, request):
         return redirect("users:cart")
 
-    
+
 class RemoveItemView(LoginRequiredMixin, View):
     login_url = "/login"
 
@@ -145,44 +148,47 @@ class CheckoutView(LoginRequiredMixin, FormView):
         cart = get_object_or_404(Cart, user=self.request.user)
         items = cart.cartitem_set.select_related("product").all()
         total_price = sum(item.quantity * item.product.price for item in items)
-        context.update({
-            "cart": cart,
-            "total_price": total_price,
-        })
+        context.update(
+            {
+                "cart": cart,
+                "total_price": total_price,
+            }
+        )
         return context
-    
+
     def form_valid(self, form):
         cart = get_object_or_404(Cart, user=self.request.user)
         items = cart.cartitem_set.select_related("product").all()
         total_price = sum(item.quantity * item.product.price for item in items)
 
-        order = form.save(commit=False)
-        order.user = self.request.user
-        order.total_price = total_price
-        order.save()
+        with transaction.atomic():
+            order = form.save(commit=False)
+            order.user = self.request.user
+            order.total_price = total_price
+            order.save()
 
-        for cart_item in items:
-            OrderItem.objects.create(
-                order=order,
-                product=cart_item.product,
-                quantity=cart_item.quantity
-            )
-            product = Product.objects.get(id=cart_item.product.id)
-            product.stock -= cart_item.quantity
-            product.save()
-        
-        cart.cartitem_set.all().delete()
+            for cart_item in items:
+                OrderItem.objects.create(
+                    order=order, product=cart_item.product, quantity=cart_item.quantity
+                )
+                product = Product.objects.get(id=cart_item.product.id)
+                product.stock -= cart_item.quantity
+                product.save()
+
+            cart.cartitem_set.all().delete()
+
+        transaction.on_commit(lambda: messages.success(self.request, "Thank you for your order!"))
 
         return render(self.request, "users/order_confirmation.html", {"order": order})
-    
-    
+
+
 class OrderListView(LoginRequiredMixin, ListView):
-    login_url = '/login'
+    login_url = "/login"
 
     model = Order
-    template_name = 'users/order_history.html'
-    context_object_name = 'orders'
-    
+    template_name = "users/order_history.html"
+    context_object_name = "orders"
+
     def get_queryset(self):
         return Order.objects.filter(user=self.request.user)
 
@@ -191,10 +197,9 @@ class OrderDetailView(LoginRequiredMixin, DetailView):
     login_url = "/login"
 
     model = Order
-    template_name = 'users/order_detail.html'
-    context_object_name = 'order'
+    template_name = "users/order_detail.html"
+    context_object_name = "order"
 
     def get_object(self):
-        # Override get_object to fetch the specific order instance
-        order_id = self.kwargs.get('order_id')
+        order_id = self.kwargs.get("order_id")
         return get_object_or_404(Order, id=order_id)
