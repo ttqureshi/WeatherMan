@@ -6,6 +6,9 @@ from django.db.models import Avg
 class Category(models.Model):
     name = models.CharField(max_length=250)
 
+    class Meta:
+        verbose_name_plural = "Categories"
+
     def __str__(self):
         return self.name
 
