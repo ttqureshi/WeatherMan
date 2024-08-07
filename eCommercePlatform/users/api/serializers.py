@@ -6,8 +6,10 @@ from users.models import Cart, CartItem, Order, OrderItem
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
-    orders = serializers.HyperlinkedRelatedField(many=True, view_name='order-detail', read_only=True)
-    
+    orders = serializers.HyperlinkedRelatedField(
+        many=True, view_name="order-detail", read_only=True
+    )
+
     class Meta:
         model = User
         fields = ["url", "id", "username", "orders"]
@@ -40,8 +42,10 @@ class CartSerializer(serializers.HyperlinkedModelSerializer):
             for item in cart_items
         ]
 
+
 class OrderItemSerializer(serializers.HyperlinkedModelSerializer):
     product_name = serializers.ReadOnlyField(source="product.name")
+
     class Meta:
         model = OrderItem
         fields = ["url", "product_name", "quantity", "total_price"]
@@ -66,7 +70,7 @@ class OrderSerializer(serializers.HyperlinkedModelSerializer):
             "country",
             "ordered_items",
         ]
-    
+
     def get_ordered_items(self, obj):
         items = OrderItem.objects.filter(order=obj)
         return [
@@ -77,4 +81,3 @@ class OrderSerializer(serializers.HyperlinkedModelSerializer):
             }
             for item in items
         ]
-
