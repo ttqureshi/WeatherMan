@@ -31,7 +31,7 @@ class Product(models.Model):
         return average_rating if average_rating is not None else 0
 
 class ReviewRating(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="reviews")
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     review = models.TextField(max_length=500, blank=True)
     rating = models.FloatField()

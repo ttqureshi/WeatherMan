@@ -1,8 +1,9 @@
-from django.urls import path
+from django.urls import path, include
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.views import LoginView
 
 from . import views
+from users.api import urls as api_urls
 
 app_name = "users"  # designates that these urls are inside the users app
 
